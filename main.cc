@@ -13,45 +13,64 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/wait.h>
-
+#include <vector>
 using namespace std;
 
 
 
 
 int main(void){
+  string file_name = "big.txt";
   int sv[2]; /* the pair of socket descriptors */
-  char buf;
-  string word;
-  if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1) {
+  static const int parentsocket = 0;
+  static const int childsocket = 1;
+  if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
         perror("socketpair");
         exit(1);
   }
 
   int pid = fork();
-  ifstream file_("big.txt");
-  std::string line_;
-  if (pid > 0) { //parent
-  //   while(file_ >> word) {
-  //   getline(file_,line_);
-  //   cout << line_ << endl;
-  // }
-
-    cout << "parent runs" << endl;
-    write(sv[0], "big.txt", 1);
-    printf("parent: sent 'b'\n");
-    read(sv[0], &buf, 1);
-    printf("parent: read '%c'\n", buf);
-    wait(NULL); /* wait for child to die */
-  }
 
   if (pid == 0){ //child
     cout << "child runs" << endl;
-    read(sv[1], &buf, 1);
-    printf("child: read '%c'\n", buf);
-    buf = toupper(buf);  /* make it uppercase */
-    write(sv[1], &buf, 1);
-    printf("child: sent '%c'\n", buf);
+    string passablefile = "";
+    char buf;
+
+
+
+    read(sv[parentsocket], &buf, sizeof(buf));
+    cout << "reading" << endl;
+    cout << "buf: " << buf << endl;
+
+
   }
+
+  else { // parent
+    vector<string> file;
+    cout << "parent runs" << endl;
+
+    ifstream fileHandler; 
+    string word;
+    fileHandler.open(file_name.c_str());
+
+    std::getline(fileHandler,word);
+    file.push_back(word);
+
+
+
+
+    string passablefile = "";
+    int fileSize = passablefile.size();
+    for (unsigned int i = 0; i < file.size(); i++) {
+      passablefile = passablefile + file.at(i);
+      cout << passablefile[i] << endl;
+    }
+    cout << "sending7" << endl;
+    write(sv[childsocket], passablefile.c_str(), fileSize+1);
+    cout << "sending8" << endl;
+    wait(NULL);
+  }
+
+
   return 0;
 }
