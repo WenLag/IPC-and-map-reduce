@@ -1,2 +1,2 @@
 run: main.cc
-	g++	-Wall -Wextra -Werror	-o	hellomake	main.cc	-I.
+	g++	-Wall -Wextra	-o	hellomake	main.cc	-I.
