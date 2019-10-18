@@ -5,6 +5,7 @@
 #include<fstream>
 #include<string>
 #include <stdio.h>
+#include <cstring>
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -14,14 +15,15 @@
 #include <sys/un.h>
 #include <sys/wait.h>
 #include <vector>
+#include <ctype.h>
 using namespace std;
 
 
 
 
-int main(int argc, char** argv){
-  string file_name = argv[1];
-  string given_word = argv[2];
+int main(){
+  string file_path = "big.txt";
+  string given_word = "it";
   int sv[2]; /* the pair of socket descriptors */
   static const int parentsocket = 0;
   static const int childsocket = 1;
@@ -35,7 +37,7 @@ int main(int argc, char** argv){
   if (pid == 0){ //child
     char buf;
     int i;
-    int temp;
+
     vector<int> size;
     bool found = false;
     string words;
@@ -46,58 +48,76 @@ int main(int argc, char** argv){
       file_as_string.push_back(buf);
     }
     cout << "reading from parent" << endl;
-
+    int counter = 0;
+    char c;
+    while (file_as_string[counter]) {
+      c = file_as_string[counter];
+      file_as_string[counter] = tolower(c);
+      counter++;
+    }
+    for (int i = 0, len = file_as_string.size(); i < len; i++)
+    {
+        // check whether parsing character is punctuation or not
+        if (ispunct(file_as_string[i]) && file_as_string[i] != '~')
+        {
+            file_as_string.erase(i--, 1);
+            len = file_as_string.size();
+        }
+    }
 
     istringstream iss(file_as_string);
     string word;
     while(iss >> word) { // while loop to split up words til the end of text file
       words_vector.push_back(word);
     }
+
     int x = 0;
     int b = 0;
     int j = 0;
     unsigned int k = 0;
     for (unsigned int i = 0; i < words_vector.size(); i++) {
-      if (i == words_vector.size()-1) {
-        for (unsigned int i = 0; i < size.size(); i++)
-          write(sv[parentsocket],&size[i], size.size()+1);
-      }
-      while (words_vector[k] != given_word && found == true) {
-        k++;
-
-      }
-      if (words_vector[i] == "*") {
+      if (words_vector[i] == "~" ) {
         j++;
         found = true;
       }
+      while (words_vector[k] != given_word && found == true) {
+        if (k < i) {
+          k++;
+        }
+        else {
+          found = false;
+        }
+      }
 
-      if (words_vector[k] == given_word && i > k && words_vector[i] == "*" && found == true) {
+
+      if (words_vector[k] == given_word && i > k && found == true) {
         x++;
         b = j - 1;
-        size.push_back(b);
         found = false;
         k = i;
-
-        cout << given_word << " is in " << j << endl;
+        printf("output: %i", j );
+        printf("\n");
+        //cout <<"\n" << given_word << " is in " << j << endl;
+        write(sv[parentsocket],&b, b);
       }
 
     }
 
   }
   else { // parent
-    int x;
+
     int buf;
     vector<string> file;
     vector<int> size;
     ifstream fileHandler;
 
-    fileHandler.open(file_name.c_str()); // open text file
+    fileHandler.open(file_path.c_str()); // open text file
 
     for (string word; getline(fileHandler,word);) { // go through every line in the textfile.
       file.push_back(word);
     }
     for (unsigned int i = 0; i < file.size() ; i++) {
-      file[i] = file[i] + " * ";
+      file[i] = file[i] + " ~ ";
     }
     string passablefile = "";
 
@@ -113,9 +133,9 @@ int main(int argc, char** argv){
     cout << "sending to child" << endl;
     shutdown(sv[childsocket], SHUT_WR);
     wait(NULL);
-    unsigned int k;
-    read(sv[childsocket],&buf, sizeof(buf));
-    cout << file[buf] << endl;
+
+    //read(sv[childsocket],&buf, sizeof(buf));
+    //cout << file[buf] << endl;
 
 
 
