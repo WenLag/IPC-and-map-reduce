@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 #include <vector>
 #include <ctype.h>
+#include <algorithm>
 using namespace std;
 
 
@@ -76,6 +77,7 @@ int main(){
     int j = 0;
     unsigned int k = 0;
     for (unsigned int i = 0; i < words_vector.size(); i++) {
+
       if (words_vector[i] == "~" ) {
         j++;
         found = true;
@@ -98,7 +100,7 @@ int main(){
         printf("output: %i", j );
         printf("\n");
         //cout <<"\n" << given_word << " is in " << j << endl;
-        write(sv[parentsocket],&b, b);
+        write(sv[parentsocket],&b, sizeof(b));
       }
 
     }
@@ -128,15 +130,20 @@ int main(){
     int fileSize = passablefile.size();
 
 
-    write(sv[childsocket], passablefile.c_str(), fileSize+1); // pass content to child
-
+    write(sv[childsocket], passablefile.c_str(), (fileSize)); // pass content to child
+    cout << fileSize << endl;
     cout << "sending to child" << endl;
+    
+    for (int i = 0; i < file.size(); i++) {
+      file[i].erase(std::remove(file[i].begin(), file[i].end(), '~'), file[i].end());
+    }
+
     shutdown(sv[childsocket], SHUT_WR);
     wait(NULL);
-
-    //read(sv[childsocket],&buf, sizeof(buf));
-    //cout << file[buf] << endl;
-
+      for (int i = 0; i < file.size(); i++) {
+      read(sv[childsocket],&i, sizeof(i));
+      cout << file[i] << endl;
+    }
 
 
 
