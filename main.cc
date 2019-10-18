@@ -38,8 +38,6 @@ int main(int argc, char** argv){
   if (pid == 0){ //child
     char buf;
     int i;
-
-    vector<int> size;
     bool found = false;
     string words;
     string file_as_string = "";
@@ -71,22 +69,19 @@ int main(int argc, char** argv){
     while(iss >> word) { // while loop to split up words til the end of text file
       words_vector.push_back(word);
     }
+    vector<int> numb;
 
-    int x = 0;
     int b = 0;
-    int j = 0;
+    unsigned int j = 0;
     unsigned int k = 0;
     for (unsigned int i = 0; i < words_vector.size(); i++) {
-
-      if (words_vector[i] == "~" ) {
+      if (words_vector[i] == "~") {
         j++;
         found = true;
       }
 
       while (words_vector[k] != given_word && found == true) {
-        if (k == words_vector.size()-1) {
-          break;
-        }
+
         if (k < i) {
           k++;
         }
@@ -94,20 +89,20 @@ int main(int argc, char** argv){
           found = false;
         }
       }
-      cout << "k" << k << endl;
-      cout << "I:" << i << endl;
-      cout << "VS:" << words_vector.size() << endl;
+
       if (words_vector[k] == given_word && i > k && found == true) {
-        x++;
         b = j - 1;
         found = false;
         k = i;
         printf("output: %i", j );
         printf("\n");
+        numb.push_back(b);
 
-        write(sv[parentsocket],&b, sizeof(b));
       }
       if (i == words_vector.size()-1) {
+        for (int i = 0; i <numb.size(); i++){
+          write(sv[parentsocket],&numb[i], sizeof(numb[i]));
+        }
         shutdown(sv[parentsocket],SHUT_WR);
       }
 
@@ -139,30 +134,20 @@ int main(int argc, char** argv){
 
 
     write(sv[childsocket], passablefile.c_str(), (fileSize)); // pass content to child
-
+    shutdown(sv[childsocket], SHUT_WR);
+    wait(NULL);
     cout << "sending to child" << endl;
-
     for (unsigned int i = 0; i < file.size(); i++) {
       file[i].erase(std::remove(file[i].begin(), file[i].end(), '~'), file[i].end());
     }
 
-    shutdown(sv[childsocket], SHUT_WR);
-    wait(NULL);
-    //   for (unsigned int i = 0; i < file.size(); i++) {
-    //   read(sv[childsocket],&i, sizeof(i));
-    //   cout << file[i] << endl;
-    // }
+
+    int j;
     int i;
-    int buf;
-    while ((i = read(sv[childsocket], &buf, sizeof(buf))) > 0) {
-      cout << file[buf] << endl;
-
+    while ((i = read(sv[childsocket], &j, sizeof(j))) > 0) {
+      cout << file[j] << endl;
+  
     }
-
-
-
-
-
 
   }
 
