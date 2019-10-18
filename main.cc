@@ -22,9 +22,9 @@ using namespace std;
 
 
 
-int main(){
-  string file_path = "big.txt";
-  string given_word = "it";
+int main(int argc, char** argv){
+  string file_path = argv[1];
+  string given_word = argv[2];
   int sv[2]; /* the pair of socket descriptors */
   static const int parentsocket = 0;
   static const int childsocket = 1;
@@ -82,7 +82,11 @@ int main(){
         j++;
         found = true;
       }
+
       while (words_vector[k] != given_word && found == true) {
+        if (k == words_vector.size()-1) {
+          break;
+        }
         if (k < i) {
           k++;
         }
@@ -90,8 +94,9 @@ int main(){
           found = false;
         }
       }
-
-
+      cout << "k" << k << endl;
+      cout << "I:" << i << endl;
+      cout << "VS:" << words_vector.size() << endl;
       if (words_vector[k] == given_word && i > k && found == true) {
         x++;
         b = j - 1;
@@ -99,8 +104,11 @@ int main(){
         k = i;
         printf("output: %i", j );
         printf("\n");
-        //cout <<"\n" << given_word << " is in " << j << endl;
+
         write(sv[parentsocket],&b, sizeof(b));
+      }
+      if (i == words_vector.size()-1) {
+        shutdown(sv[parentsocket],SHUT_WR);
       }
 
     }
@@ -108,7 +116,7 @@ int main(){
   }
   else { // parent
 
-    int buf;
+
     vector<string> file;
     vector<int> size;
     ifstream fileHandler;
@@ -131,18 +139,24 @@ int main(){
 
 
     write(sv[childsocket], passablefile.c_str(), (fileSize)); // pass content to child
-    cout << fileSize << endl;
+
     cout << "sending to child" << endl;
-    
-    for (int i = 0; i < file.size(); i++) {
+
+    for (unsigned int i = 0; i < file.size(); i++) {
       file[i].erase(std::remove(file[i].begin(), file[i].end(), '~'), file[i].end());
     }
 
     shutdown(sv[childsocket], SHUT_WR);
     wait(NULL);
-      for (int i = 0; i < file.size(); i++) {
-      read(sv[childsocket],&i, sizeof(i));
-      cout << file[i] << endl;
+    //   for (unsigned int i = 0; i < file.size(); i++) {
+    //   read(sv[childsocket],&i, sizeof(i));
+    //   cout << file[i] << endl;
+    // }
+    int i;
+    int buf;
+    while ((i = read(sv[childsocket], &buf, sizeof(buf))) > 0) {
+      cout << file[buf] << endl;
+
     }
 
 
