@@ -112,12 +112,12 @@ int main(int argc, char** argv) {
     }
 
     int fileSize = passablefile.size();
-
+    cout << "\n" << "Sending to child..." << endl;
     /* pass content to child */
     write(sv[childsocket], passablefile.c_str(), (fileSize));
     shutdown(sv[childsocket], SHUT_WR);
     wait(NULL);
-    cout << "\n" << "Sending to child..." << endl;
+
     for (unsigned int i = 0; i < file.size(); i++) {
       file[i].erase(std::remove(file[i].begin(),
                     file[i].end(), '`'),
