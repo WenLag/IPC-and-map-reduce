@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     while ((i = read(sv[parentsocket], &buf, sizeof(buf))) > 0) {
       file_as_string.push_back(buf);
     }
-    cout << "Reading from parent..." << endl;
+    cout << "\n" << "Reading from parent..." << endl;
     int counter = 0;
     char c;
     while (file_as_string[counter]) {
@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
         printf("\n");
         numb.push_back(b);
       }
+      cout << "\n" << "Proceeding to write to parent..." << endl;
       if (i == words_vector.size()-1) {
         ssize_t total_bytes_written = 0;
         while (total_bytes_written != 1024) {
@@ -92,13 +93,13 @@ int main(int argc, char** argv) {
       shutdown(sv[parentsocket], SHUT_WR);
       }
     }
-  }
-  else { /* parent */
+  } else { /* parent */
     vector<string> file;
     vector<int> size;
     ifstream fileHandler;
     fileHandler.open(file_path.c_str()); /* open text file */
-    for (string word; getline(fileHandler,word);) { /* go through every line in the textfile */
+    /* go through every line in the textfile */
+    for (string word; getline(fileHandler, word);) {
       file.push_back(word);
     }
     for (unsigned int i = 0; i < file.size() ; i++) {
@@ -112,11 +113,11 @@ int main(int argc, char** argv) {
 
     int fileSize = passablefile.size();
 
-
-    write(sv[childsocket], passablefile.c_str(), (fileSize)); // pass content to child
+    /* pass content to child */
+    write(sv[childsocket], passablefile.c_str(), (fileSize));
     shutdown(sv[childsocket], SHUT_WR);
     wait(NULL);
-    cout << "sending to child" << endl;
+    cout << "\n" << "Sending to child..." << endl;
     for (unsigned int i = 0; i < file.size(); i++) {
       file[i].erase(std::remove(file[i].begin(),
                     file[i].end(), '`'),
@@ -124,14 +125,10 @@ int main(int argc, char** argv) {
     }
     int j;
     int i;
+    cout << "\n" << "Proceeding to read from child..." << endl;
     while ((i = read(sv[childsocket], &j, sizeof(j))) > 0) {
-
       cout << file[j] << endl;
-
     }
-
   }
-
-
   return 0;
 }
