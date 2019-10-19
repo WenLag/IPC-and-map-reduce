@@ -18,7 +18,7 @@
 #include <vector>
 #include <ctype.h>
 #include <algorithm>
-#include <cassert>
+
 
 using std::cout;
 using std::string;

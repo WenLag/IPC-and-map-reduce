@@ -2,9 +2,6 @@
 //  Copyright 2019 Nguyen vu Nguyen
 #include <p1.h>
 
-
-
-
 int main(int argc, char** argv) {
   string file_path = argv[1];
   string given_word = argv[2];
@@ -30,7 +27,8 @@ int main(int argc, char** argv) {
     while ((i = read(sv[parentsocket], &buf, sizeof(buf))) > 0) {
       file_as_string.push_back(buf);
     }
-    cout << "\n" << "Reading from parent..." << endl;
+
+
     int counter = 0;
     char c;
     while (file_as_string[counter]) {
@@ -55,7 +53,8 @@ int main(int argc, char** argv) {
     int b = 0;
     unsigned int j = 0;
     unsigned int k = 0;
-    for (unsigned int i = 0; i < words_vector.size(); i++) {
+
+    for (unsigned int i = 0; i < words_vector.size(); i++) { /* parsing string file */
       if (words_vector[i] == "`") {
         j++;
         found = true;
@@ -72,15 +71,12 @@ int main(int argc, char** argv) {
         b = j - 1;
         found = false;
         k = i;
-        printf("output: %i", j);
-        printf("\n");
         numb.push_back(b);
       }
-      cout << "\n" << "Proceeding to write to parent..." << endl;
-      if (i == words_vector.size()-1) {
+
+      if (i == words_vector.size()-1) { /* sending file to parent once it has finished parsing */
         ssize_t total_bytes_written = 0;
         while (total_bytes_written != 1024) {
-          assert(total_bytes_written < 1024);
           ssize_t bytes_written = write(sv[parentsocket],
                                   &numb[total_bytes_written],
                                   1024 - total_bytes_written);
@@ -90,21 +86,25 @@ int main(int argc, char** argv) {
           }
         total_bytes_written += bytes_written;
         }
-      shutdown(sv[parentsocket], SHUT_WR);
+      shutdown(sv[parentsocket], SHUT_WR); /* end of file indication */
       }
     }
   } else { /* parent */
     vector<string> file;
     vector<int> size;
     ifstream fileHandler;
+
     fileHandler.open(file_path.c_str()); /* open text file */
-    /* go through every line in the textfile */
+
+    /* go through every line in the textfile and put each line in the vector*/
     for (string word; getline(fileHandler, word);) {
       file.push_back(word);
     }
+
     for (unsigned int i = 0; i < file.size() ; i++) {
       file[i] = file[i] + " ` ";
     }
+
     string passablefile = "";
 
     for (unsigned int i = 0; i < file.size(); i++) {
@@ -112,20 +112,20 @@ int main(int argc, char** argv) {
     }
 
     int fileSize = passablefile.size();
-    cout << "\n" << "Sending to child..." << endl;
+
     /* pass content to child */
     write(sv[childsocket], passablefile.c_str(), (fileSize));
-    shutdown(sv[childsocket], SHUT_WR);
+    shutdown(sv[childsocket], SHUT_WR); /* end of file indication to prevent blocking of child's read */
     wait(NULL);
 
-    for (unsigned int i = 0; i < file.size(); i++) {
+    for (unsigned int i = 0; i < file.size(); i++) { /* remove all the ` that was indicatng end of line */
       file[i].erase(std::remove(file[i].begin(),
                     file[i].end(), '`'),
                     file[i].end());
     }
     int j;
     int i;
-    cout << "\n" << "Proceeding to read from child..." << endl;
+
     while ((i = read(sv[childsocket], &j, sizeof(j))) > 0) {
       cout << file[j] << endl;
     }
