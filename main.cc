@@ -17,6 +17,7 @@
 #include <vector>
 #include <ctype.h>
 #include <algorithm>
+#include <cassert>
 using namespace std;
 
 
@@ -100,10 +101,21 @@ int main(int argc, char** argv){
 
       }
       if (i == words_vector.size()-1) {
-        for (int i = 0; i <numb.size(); i++){
-          write(sv[parentsocket],&numb[i], sizeof(numb[i]));
-        }
-        shutdown(sv[parentsocket],SHUT_WR);
+        ssize_t total_bytes_written = 0;
+        while (total_bytes_written != 1024)
+        {
+          assert(total_bytes_written < 1024);
+          ssize_t bytes_written = write(sv[parentsocket],
+                                  &numb[total_bytes_written],
+                                  1024 - total_bytes_written);
+    if (bytes_written == -1)
+    {
+        /* Report failure and exit. */
+        break;
+    }
+    total_bytes_written += bytes_written;
+    }
+      shutdown(sv[parentsocket],SHUT_WR);
       }
 
     }
@@ -144,9 +156,11 @@ int main(int argc, char** argv){
 
     int j;
     int i;
+
     while ((i = read(sv[childsocket], &j, sizeof(j))) > 0) {
+
       cout << file[j] << endl;
-  
+
     }
 
   }
