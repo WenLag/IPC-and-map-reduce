@@ -4,7 +4,7 @@
 
 Sub Project #1 is a c++ program that has 2 processes, a parent and a child process.
 Given a text file and desired word in the terminal, e.g: "./sub_project1 big.txt word",
-the program searches for "word" in "big.txt".
+the program searches for "word" in "big.txt". Searching for a word in "big.txt" which has about 120k lines will take about 5-6minute, while searching in ANNA_KAREININA with about 30k lines will take 20-40seconds. 
 The program starts by letting the parent process open and read the text file,
 go through each line and put each line in a vector. Once done, the parent adds a char to the end of each line.
 The char will indicate that the line has ended.
