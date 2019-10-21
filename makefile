@@ -10,3 +10,6 @@ OBJ = subProject1.cc
 
 sub_project1: $(OBJ)
 		$(CC) -o $@ $^ $(CFLAGS)
+
+clean:
+	rm sub_project1
