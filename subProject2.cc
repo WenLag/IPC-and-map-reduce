@@ -1,13 +1,16 @@
 
 //  Copyright 2019 Nguyen vu Nguyen
 #include <p1.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
+/* UNFINISHED */
 int main(int argc, char** argv) {
   string file_path = argv[1];
   string given_word = argv[2];
-  int sv[2]; /* the pair of socket descriptors */
-  static const int parentsocket = 0;
-  static const int childsocket = 1;
+
+int shm_open (const char *name, int oflag, mode_t mode);
 
 
   int pid = fork();

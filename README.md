@@ -20,7 +20,7 @@ _SubProject1 Issues_
 The main problem that often occurred was the child process kept getting blocked and the program would forever be locked.
 The solution was shutdown(), which gave the child process an end of file indication and shuts down part of the connection.
 One big problem of how I designed my program would be how I chose to indicate the end of a line, which is char.
-If a file were to contain a char, it would count as the end of a line in a file and could result in inaccurate parsing.
+If a file were to contain the specified char, it would count as the end of a line in a file and could result in inaccurate parsing.
 
 _HOWTO_
 
@@ -28,3 +28,7 @@ To get a copy of the program on your local linux environment,
 "git clone https://github.com/WenLag/IPC-and-map-reduce.git" in your terminal.
 Simply start the program by typing "make" in your program. You should now have an executable file called sub_project1.
 Run the program by typing "./sub_project1 [textfile] [desired word]" in your terminal.
+
+# subProject 2
+
+UNFINISHED.

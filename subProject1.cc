@@ -2,6 +2,7 @@
 //  Copyright 2019 Nguyen vu Nguyen
 #include <p1.h>
 
+/* FINSHED */
 int main(int argc, char** argv) {
   string file_path = argv[1];
   string given_word = argv[2];
